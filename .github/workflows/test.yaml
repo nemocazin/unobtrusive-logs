@@ -4,6 +4,7 @@ on:
     workflow_run:
         workflows: ['Build']
         types: [completed]
+        branches: [main, develop]
 
 jobs:
     lint:
@@ -11,11 +12,10 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - name: Download build artifact
-              uses: actions/download-artifact@v4
+            - name: Checkout repository
+              uses: actions/checkout@v4
               with:
-                  name: build-artifact
-                  run-id: ${{ github.event.workflow_run.id }}
+                  ref: ${{ github.event.workflow_run.head_sha }}
 
             - name: Setup Node.js
               uses: actions/setup-node@v4
@@ -34,10 +34,18 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  ref: ${{ github.event.workflow_run.head_sha }}
+
             - name: Download build artifact
               uses: actions/download-artifact@v4
               with:
                   name: build-artifact
+                  path: dist/
+                  run-id: ${{ github.event.workflow_run.id }}
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Setup Node.js
               uses: actions/setup-node@v4
@@ -57,10 +65,18 @@ jobs:
         needs: test
 
         steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  ref: ${{ github.event.workflow_run.head_sha }}
+
             - name: Download build artifact
               uses: actions/download-artifact@v4
               with:
                   name: build-artifact
+                  path: dist/
+                  run-id: ${{ github.event.workflow_run.id }}
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Setup Node.js
               uses: actions/setup-node@v4
@@ -79,3 +95,4 @@ jobs:
               with:
                   files: ./coverage/lcov.info
                   fail_ci_if_error: true
+                  token: ${{ secrets.CODECOV_TOKEN }}
