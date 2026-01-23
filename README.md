@@ -1,2 +1,3 @@
 # logs-opacity
-VSCode extension for logs 
+
+VSCode extension for logs
