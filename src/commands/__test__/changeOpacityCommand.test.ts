@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as vscode from 'vscode';
 import { handleChangeOpacityCommand } from '../changeOpacityCommand';
 import * as configManager from '../../config/configManager';
@@ -14,27 +14,32 @@ vi.mock('vscode', () => ({
 }));
 
 // Mock dependencies
-vi.mock('../config/configManager', () => ({
-    getOpacityFromConfig: vi.fn(),
-    saveOpacityToConfig: vi.fn(),
-}));
-
-vi.mock('../core/decoration', () => ({
-    recreateDecoration: vi.fn(),
-}));
-
-vi.mock('../core/decorationUpdater', () => ({
-    updateAllVisibleEditors: vi.fn(),
-}));
+vi.mock('../../config/configManager');
+vi.mock('../../core/decoration');
+vi.mock('../../core/decorationUpdater');
 
 describe('changeOpacityCommand', () => {
+    let getOpacityFromConfigMock: ReturnType<typeof vi.fn>;
+    let saveOpacityToConfigMock: ReturnType<typeof vi.fn>;
+    let recreateDecorationMock: ReturnType<typeof vi.fn>;
+    let updateAllVisibleEditorsMock: ReturnType<typeof vi.fn>;
+    let showInputBoxMock: ReturnType<typeof vi.fn>;
+    let showInformationMessageMock: ReturnType<typeof vi.fn>;
+
     beforeEach(() => {
         vi.clearAllMocks();
 
-        vi.spyOn(configManager, 'getOpacityFromConfig').mockReturnValue(50);
-        vi.spyOn(configManager, 'saveOpacityToConfig').mockResolvedValue();
-        vi.spyOn(decoration, 'recreateDecoration').mockImplementation(() => {});
-        vi.spyOn(decorationUpdater, 'updateAllVisibleEditors').mockImplementation(() => {});
+        getOpacityFromConfigMock = vi.mocked(configManager.getOpacityFromConfig);
+        saveOpacityToConfigMock = vi.mocked(configManager.saveOpacityToConfig);
+        recreateDecorationMock = vi.mocked(decoration.recreateDecoration);
+        updateAllVisibleEditorsMock = vi.mocked(decorationUpdater.updateAllVisibleEditors);
+        showInputBoxMock = vi.mocked(vscode.window.showInputBox);
+        showInformationMessageMock = vi.mocked(vscode.window.showInformationMessage);
+
+        getOpacityFromConfigMock.mockReturnValue(50);
+        saveOpacityToConfigMock.mockResolvedValue(undefined);
+        recreateDecorationMock.mockImplementation(() => {});
+        updateAllVisibleEditorsMock.mockImplementation(() => {});
     });
 
     afterEach(() => {
@@ -110,21 +115,21 @@ describe('changeOpacityCommand', () => {
 
     describe('handleChangeOpacityCommand', () => {
         it('should get current opacity from config', async () => {
-            vi.mocked(configManager.getOpacityFromConfig).mockReturnValue(50);
-            vi.mocked(vscode.window.showInputBox).mockResolvedValue(undefined);
+            getOpacityFromConfigMock.mockReturnValue(50);
+            showInputBoxMock.mockResolvedValue(undefined);
 
             await handleChangeOpacityCommand();
 
-            expect(configManager.getOpacityFromConfig).toHaveBeenCalledTimes(1);
+            expect(getOpacityFromConfigMock).toHaveBeenCalledTimes(1);
         });
 
         it('should prompt user with current opacity value', async () => {
-            vi.mocked(configManager.getOpacityFromConfig).mockReturnValue(75);
-            vi.mocked(vscode.window.showInputBox).mockResolvedValue(undefined);
+            getOpacityFromConfigMock.mockReturnValue(75);
+            showInputBoxMock.mockResolvedValue(undefined);
 
             await handleChangeOpacityCommand();
 
-            expect(vscode.window.showInputBox).toHaveBeenCalledWith({
+            expect(showInputBoxMock).toHaveBeenCalledWith({
                 prompt: 'Enter opacity value (0 = invisible, 100 = normal)',
                 value: '75',
                 validateInput: expect.any(Function),
@@ -132,90 +137,90 @@ describe('changeOpacityCommand', () => {
         });
 
         it('should save new opacity value when user provides valid input', async () => {
-            vi.mocked(configManager.getOpacityFromConfig).mockReturnValue(50);
-            vi.mocked(vscode.window.showInputBox).mockResolvedValue('80');
+            getOpacityFromConfigMock.mockReturnValue(50);
+            showInputBoxMock.mockResolvedValue('80');
 
             await handleChangeOpacityCommand();
 
-            expect(configManager.saveOpacityToConfig).toHaveBeenCalledWith(80);
+            expect(saveOpacityToConfigMock).toHaveBeenCalledWith(80);
         });
 
         it('should recreate decoration after saving new opacity', async () => {
-            vi.mocked(configManager.getOpacityFromConfig).mockReturnValue(50);
-            vi.mocked(vscode.window.showInputBox).mockResolvedValue('60');
+            getOpacityFromConfigMock.mockReturnValue(50);
+            showInputBoxMock.mockResolvedValue('60');
 
             await handleChangeOpacityCommand();
 
-            expect(decoration.recreateDecoration).toHaveBeenCalledTimes(1);
+            expect(recreateDecorationMock).toHaveBeenCalledTimes(1);
         });
 
         it('should update all visible editors after changing opacity', async () => {
-            vi.mocked(configManager.getOpacityFromConfig).mockReturnValue(50);
-            vi.mocked(vscode.window.showInputBox).mockResolvedValue('70');
+            getOpacityFromConfigMock.mockReturnValue(50);
+            showInputBoxMock.mockResolvedValue('70');
 
             await handleChangeOpacityCommand();
 
-            expect(decorationUpdater.updateAllVisibleEditors).toHaveBeenCalledTimes(1);
+            expect(updateAllVisibleEditorsMock).toHaveBeenCalledTimes(1);
         });
 
         it('should show confirmation message with new opacity value', async () => {
-            vi.mocked(configManager.getOpacityFromConfig).mockReturnValue(50);
-            vi.mocked(vscode.window.showInputBox).mockResolvedValue('90');
+            getOpacityFromConfigMock.mockReturnValue(50);
+            showInputBoxMock.mockResolvedValue('90');
 
             await handleChangeOpacityCommand();
 
-            expect(vscode.window.showInformationMessage).toHaveBeenCalledWith('Logs opacity set to 90%');
+            expect(showInformationMessageMock).toHaveBeenCalledWith('Logs opacity set to 90%');
         });
 
         it('should not save or update when user cancels input', async () => {
-            vi.mocked(configManager.getOpacityFromConfig).mockReturnValue(50);
-            vi.mocked(vscode.window.showInputBox).mockResolvedValue(undefined);
+            getOpacityFromConfigMock.mockReturnValue(50);
+            showInputBoxMock.mockResolvedValue(undefined);
 
             await handleChangeOpacityCommand();
 
-            expect(configManager.saveOpacityToConfig).not.toHaveBeenCalled();
-            expect(decoration.recreateDecoration).not.toHaveBeenCalled();
-            expect(decorationUpdater.updateAllVisibleEditors).not.toHaveBeenCalled();
-            expect(vscode.window.showInformationMessage).not.toHaveBeenCalled();
+            expect(saveOpacityToConfigMock).not.toHaveBeenCalled();
+            expect(recreateDecorationMock).not.toHaveBeenCalled();
+            expect(updateAllVisibleEditorsMock).not.toHaveBeenCalled();
+            expect(showInformationMessageMock).not.toHaveBeenCalled();
         });
 
         it('should not save or update when user provides empty string', async () => {
-            vi.mocked(configManager.getOpacityFromConfig).mockReturnValue(50);
-            vi.mocked(vscode.window.showInputBox).mockResolvedValue('');
+            getOpacityFromConfigMock.mockReturnValue(50);
+            showInputBoxMock.mockResolvedValue('');
 
             await handleChangeOpacityCommand();
 
-            expect(configManager.saveOpacityToConfig).not.toHaveBeenCalled();
-            expect(decoration.recreateDecoration).not.toHaveBeenCalled();
-            expect(decorationUpdater.updateAllVisibleEditors).not.toHaveBeenCalled();
-            expect(vscode.window.showInformationMessage).not.toHaveBeenCalled();
+            expect(saveOpacityToConfigMock).not.toHaveBeenCalled();
+            expect(recreateDecorationMock).not.toHaveBeenCalled();
+            expect(updateAllVisibleEditorsMock).not.toHaveBeenCalled();
+            expect(showInformationMessageMock).not.toHaveBeenCalled();
         });
 
         it('should handle decimal opacity values correctly', async () => {
-            vi.mocked(configManager.getOpacityFromConfig).mockReturnValue(50);
-            vi.mocked(vscode.window.showInputBox).mockResolvedValue('33.5');
+            getOpacityFromConfigMock.mockReturnValue(50);
+            showInputBoxMock.mockResolvedValue('33.5');
 
             await handleChangeOpacityCommand();
 
-            expect(configManager.saveOpacityToConfig).toHaveBeenCalledWith(33.5);
-            expect(vscode.window.showInformationMessage).toHaveBeenCalledWith('Logs opacity set to 33.5%');
+            expect(saveOpacityToConfigMock).toHaveBeenCalledWith(33.5);
+            expect(showInformationMessageMock).toHaveBeenCalledWith('Logs opacity set to 33.5%');
         });
 
         it('should execute functions in correct order', async () => {
             const callOrder: string[] = [];
 
-            vi.mocked(configManager.getOpacityFromConfig).mockReturnValue(50);
-            vi.mocked(vscode.window.showInputBox).mockResolvedValue('60');
-            vi.mocked(configManager.saveOpacityToConfig).mockImplementation(async () => {
+            getOpacityFromConfigMock.mockReturnValue(50);
+            showInputBoxMock.mockResolvedValue('60');
+            saveOpacityToConfigMock.mockImplementation(async () => {
                 callOrder.push('save');
             });
-            vi.mocked(decoration.recreateDecoration).mockImplementation(() => {
+            recreateDecorationMock.mockImplementation(() => {
                 callOrder.push('recreate');
             });
-            vi.mocked(decorationUpdater.updateAllVisibleEditors).mockImplementation(() => {
+            updateAllVisibleEditorsMock.mockImplementation(() => {
                 callOrder.push('update');
             });
-            vi.mocked(vscode.window.showInformationMessage).mockImplementation(() => {
+            showInformationMessageMock.mockImplementation(() => {
                 callOrder.push('confirm');
                 return Promise.resolve(undefined);
             });
@@ -226,76 +231,82 @@ describe('changeOpacityCommand', () => {
         });
 
         it('should handle opacity value of 0', async () => {
-            vi.mocked(configManager.getOpacityFromConfig).mockReturnValue(50);
-            vi.mocked(vscode.window.showInputBox).mockResolvedValue('0');
+            getOpacityFromConfigMock.mockReturnValue(50);
+            showInputBoxMock.mockResolvedValue('0');
 
             await handleChangeOpacityCommand();
 
-            expect(configManager.saveOpacityToConfig).toHaveBeenCalledWith(0);
-            expect(vscode.window.showInformationMessage).toHaveBeenCalledWith('Logs opacity set to 0%');
+            expect(saveOpacityToConfigMock).toHaveBeenCalledWith(0);
+            expect(showInformationMessageMock).toHaveBeenCalledWith('Logs opacity set to 0%');
         });
 
         it('should handle opacity value of 100', async () => {
-            vi.mocked(configManager.getOpacityFromConfig).mockReturnValue(50);
-            vi.mocked(vscode.window.showInputBox).mockResolvedValue('100');
+            getOpacityFromConfigMock.mockReturnValue(50);
+            showInputBoxMock.mockResolvedValue('100');
 
             await handleChangeOpacityCommand();
 
-            expect(configManager.saveOpacityToConfig).toHaveBeenCalledWith(100);
-            expect(vscode.window.showInformationMessage).toHaveBeenCalledWith('Logs opacity set to 100%');
+            expect(saveOpacityToConfigMock).toHaveBeenCalledWith(100);
+            expect(showInformationMessageMock).toHaveBeenCalledWith('Logs opacity set to 100%');
         });
     });
 
     describe('promptForOpacity', () => {
         it('should display correct prompt message', async () => {
-            vi.mocked(vscode.window.showInputBox).mockResolvedValue(undefined);
+            showInputBoxMock.mockResolvedValue(undefined);
 
             await handleChangeOpacityCommand();
 
-            const mockFn = vscode.window.showInputBox as Mock;
-            const callArgs = mockFn.mock.calls[0][0];
-            expect(callArgs.prompt).toBe('Enter opacity value (0 = invisible, 100 = normal)');
+            const calls = showInputBoxMock.mock.calls;
+            expect(calls.length).toBeGreaterThan(0);
+            const callArgs = calls[0]?.[0];
+
+            expect(callArgs?.prompt).toBe('Enter opacity value (0 = invisible, 100 = normal)');
         });
 
         it('should pre-fill input with current value', async () => {
-            vi.mocked(configManager.getOpacityFromConfig).mockReturnValue(65);
-            vi.mocked(vscode.window.showInputBox).mockResolvedValue(undefined);
+            getOpacityFromConfigMock.mockReturnValue(65);
+            showInputBoxMock.mockResolvedValue(undefined);
 
             await handleChangeOpacityCommand();
 
-            const mockFn = vscode.window.showInputBox as Mock;
-            const callArgs = mockFn.mock.calls[0][0];
-            expect(callArgs.value).toBe('65');
+            const calls = showInputBoxMock.mock.calls;
+            expect(calls.length).toBeGreaterThan(0);
+            const callArgs = calls[0]?.[0];
+
+            expect(callArgs?.value).toBe('65');
         });
 
         it('should include validation function', async () => {
-            vi.mocked(vscode.window.showInputBox).mockResolvedValue(undefined);
+            showInputBoxMock.mockResolvedValue(undefined);
 
             await handleChangeOpacityCommand();
 
-            const mockFn = vscode.window.showInputBox as Mock;
-            const callArgs = mockFn.mock.calls[0][0];
-            expect(callArgs.validateInput).toBeTypeOf('function');
+            const calls = showInputBoxMock.mock.calls;
+            expect(calls.length).toBeGreaterThan(0);
+            const callArgs = calls[0]?.[0];
+
+            expect(callArgs?.validateInput).toBeTypeOf('function');
         });
     });
 
     describe('showOpacityConfirmation', () => {
         it('should show message with percentage symbol', async () => {
-            vi.mocked(configManager.getOpacityFromConfig).mockReturnValue(50);
-            vi.mocked(vscode.window.showInputBox).mockResolvedValue('42');
+            getOpacityFromConfigMock.mockReturnValue(50);
+            showInputBoxMock.mockResolvedValue('42');
 
             await handleChangeOpacityCommand();
 
-            expect(vscode.window.showInformationMessage).toHaveBeenCalledWith('Logs opacity set to 42%');
+            expect(showInformationMessageMock).toHaveBeenCalledWith('Logs opacity set to 42%');
         });
 
         it('should format decimal values in message', async () => {
-            vi.mocked(configManager.getOpacityFromConfig).mockReturnValue(50);
-            vi.mocked(vscode.window.showInputBox).mockResolvedValue('66.67');
+            getOpacityFromConfigMock.mockReturnValue(50);
+            showInputBoxMock.mockResolvedValue('66.67');
 
             await handleChangeOpacityCommand();
 
-            expect(vscode.window.showInformationMessage).toHaveBeenCalledWith('Logs opacity set to 66.67%');
+            expect(showInformationMessageMock).toHaveBeenCalledWith('Logs opacity set to 66.67%');
         });
     });
 });

@@ -8,16 +8,18 @@ type Position = {
 describe('logDetector', () => {
     vi.mock('vscode', () => ({
         Range: class {
-            constructor(
-                public start: Position,
-                public end: Position,
-            ) {}
+            start: Position;
+            end: Position;
+
+            constructor(start: Position, end: Position) {
+                this.start = start;
+                this.end = end;
+            }
         },
     }));
 
     describe('language mapping', () => {
         it('should map typescript to typescript patterns', () => {
-            // This tests the concept - actual implementation would need VSCode mocks
             const languageMap: { [key: string]: string } = {
                 typescript: 'typescript',
                 javascript: 'javascript',
@@ -41,7 +43,11 @@ describe('logDetector', () => {
             const matches = [...text.matchAll(regex)];
 
             expect(matches.length).toBe(1);
-            expect(matches[0][0]).toBe('console.log(x);');
+            const firstMatch = matches[0];
+            expect(firstMatch).toBeDefined();
+            if (firstMatch) {
+                expect(firstMatch[0]).toBe('console.log(x);');
+            }
         });
 
         it('should find multiple log statements', () => {
@@ -58,7 +64,11 @@ describe('logDetector', () => {
             const matches = [...text.matchAll(regex)];
 
             expect(matches.length).toBe(1);
-            expect(matches[0][0]).toBe('fmt.Println("Hello")');
+            const firstMatch = matches[0];
+            expect(firstMatch).toBeDefined();
+            if (firstMatch) {
+                expect(firstMatch[0]).toBe('fmt.Println("Hello")');
+            }
         });
     });
 });

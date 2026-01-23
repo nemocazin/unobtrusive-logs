@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as vscode from 'vscode';
 import { registerCommands } from '../commandRegistry';
 import * as changeOpacityCommand from '../changeOpacityCommand';
@@ -18,6 +18,7 @@ vi.mock('../changeOpacityCommand', () => ({
 describe('commandRegistry', () => {
     let mockContext: vscode.ExtensionContext;
     let mockDisposable: vscode.Disposable;
+    let registerCommandMock: ReturnType<typeof vi.fn>;
 
     beforeEach(() => {
         vi.clearAllMocks();
@@ -32,8 +33,9 @@ describe('commandRegistry', () => {
             subscriptions: [],
         } as unknown as vscode.ExtensionContext;
 
-        // Setup registerCommand to return mock disposable
-        vi.mocked(vscode.commands.registerCommand).mockReturnValue(mockDisposable);
+        // Setup registerCommand mock
+        registerCommandMock = vi.mocked(vscode.commands.registerCommand);
+        registerCommandMock.mockReturnValue(mockDisposable);
     });
 
     afterEach(() => {
@@ -44,7 +46,7 @@ describe('commandRegistry', () => {
         it('should register change opacity command', () => {
             registerCommands(mockContext);
 
-            expect(vscode.commands.registerCommand).toHaveBeenCalledWith(
+            expect(registerCommandMock).toHaveBeenCalledWith(
                 'logs-opacity.changeOpacity',
                 changeOpacityCommand.handleChangeOpacityCommand,
             );
@@ -53,7 +55,7 @@ describe('commandRegistry', () => {
         it('should register command exactly once', () => {
             registerCommands(mockContext);
 
-            expect(vscode.commands.registerCommand).toHaveBeenCalledTimes(1);
+            expect(registerCommandMock).toHaveBeenCalledTimes(1);
         });
 
         it('should add command to context subscriptions', () => {
@@ -71,8 +73,9 @@ describe('commandRegistry', () => {
         it('should use correct command identifier', () => {
             registerCommands(mockContext);
 
-            const mockFn = vscode.commands.registerCommand as Mock;
-            const commandId = mockFn.mock.calls[0][0];
+            const calls = registerCommandMock.mock.calls;
+            expect(calls.length).toBeGreaterThan(0);
+            const commandId = calls[0]?.[0];
 
             expect(commandId).toBe('logs-opacity.changeOpacity');
         });
@@ -80,8 +83,9 @@ describe('commandRegistry', () => {
         it('should pass handleChangeOpacityCommand as callback', () => {
             registerCommands(mockContext);
 
-            const mockFn = vscode.commands.registerCommand as Mock;
-            const callback = mockFn.mock.calls[0][1];
+            const calls = registerCommandMock.mock.calls;
+            expect(calls.length).toBeGreaterThan(0);
+            const callback = calls[0]?.[1];
 
             expect(callback).toBe(changeOpacityCommand.handleChangeOpacityCommand);
         });
@@ -94,7 +98,7 @@ describe('commandRegistry', () => {
             registerCommands(mockContext);
             registerCommands(mockContext);
 
-            expect(vscode.commands.registerCommand).toHaveBeenCalledTimes(2);
+            expect(registerCommandMock).toHaveBeenCalledTimes(2);
             expect(mockContext.subscriptions.length).toBe(2);
         });
 
@@ -112,7 +116,7 @@ describe('commandRegistry', () => {
         it('should register command before adding to subscriptions', () => {
             const callOrder: string[] = [];
 
-            vi.mocked(vscode.commands.registerCommand).mockImplementation(() => {
+            registerCommandMock.mockImplementation(() => {
                 callOrder.push('register');
                 return mockDisposable;
             });
@@ -149,13 +153,14 @@ describe('commandRegistry', () => {
             registerCommands(mockContext);
 
             const disposable = mockContext.subscriptions[0];
-            expect(disposable.dispose).toBeDefined();
-            expect(typeof disposable.dispose).toBe('function');
+            expect(disposable).toBeDefined();
+            expect(disposable?.dispose).toBeDefined();
+            expect(typeof disposable?.dispose).toBe('function');
         });
 
         it('should create disposable from registerCommand return value', () => {
             const customDisposable = { dispose: vi.fn() };
-            vi.mocked(vscode.commands.registerCommand).mockReturnValue(customDisposable);
+            registerCommandMock.mockReturnValue(customDisposable);
 
             registerCommands(mockContext);
 
