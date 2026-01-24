@@ -7,4 +7,28 @@
 
 ## Description
 
-VSCode extension for logs
+VS Code extension that adjusts the visual appearance of log statements in your code by controlling their opacity and color, making them less obtrusive while coding.
+
+## Features
+
+- Customizable opacity for log statements (0-100%)
+- Configurable color for log statements
+- Works with any file
+- Simple commands for quick adjustments
+- Compatible with [Syntax Gaslighting](https://github.com/eNiiju/syntax-gaslighting/tree/main)
+
+## Usage
+
+The extension is enabled by default when you open VS Code. It will apply the configured opacity and color settings to log statements in your code.
+
+### Commands
+
+- `unobtrusive-logs.changeOpacity`: Change the opacity level of log statements
+- `unobtrusive-logs.changeColor`: Change the color of log statements
+
+### Configuration
+
+You can configure the extension in VS Code settings:
+
+- `logsOpacity.opacity`: Opacity level for logs (0 to 100, default: 50)
+- `logsOpacity.color`: Color used for logs (default: #808080)
