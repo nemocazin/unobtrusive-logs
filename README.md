@@ -35,4 +35,4 @@ You can configure the extension in VS Code settings:
 
 ## Contact
 
-[Syntax Gaslighting](https://github.com/nemocazin)
+[Syntax Gaslighting](https://github.com/nemocazin) 2026
