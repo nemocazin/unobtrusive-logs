@@ -140,7 +140,6 @@ describe('Decoration Manager Tests', () => {
         });
 
         it('should handle dispose when no decoration exists', () => {
-            // This should not throw an error
             expect(() => disposeDecoration()).not.toThrow();
         });
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as vscode from 'vscode';
-import { handleChangeOpacityCommand } from '../changeOpacityCommand';
+import { handleChangeOpacityCommand, validateOpacityInput } from '../changeOpacityCommand';
 import * as configManager from '../../config/configManager';
 import * as decoration from '../../core/decoration';
 import * as decorationUpdater from '../../core/decorationUpdater';
@@ -47,15 +47,6 @@ describe('changeOpacityCommand', () => {
     });
 
     describe('validateOpacityInput', () => {
-        // Extract the validation function for testing
-        const validateOpacityInput = (value: string): string | null => {
-            const num = parseFloat(value);
-            if (isNaN(num) || num < 0 || num > 100) {
-                return 'Please enter a number between 0 and 100';
-            }
-            return null;
-        };
-
         it('should return null for valid opacity value 0', () => {
             expect(validateOpacityInput('0')).toBeNull();
         });
@@ -85,9 +76,9 @@ describe('changeOpacityCommand', () => {
         });
 
         it('should return error message for non-numeric input', () => {
-            expect(validateOpacityInput('abc')).toBe('Please enter a number between 0 and 100');
-            expect(validateOpacityInput('fifty')).toBe('Please enter a number between 0 and 100');
-            expect(validateOpacityInput('test')).toBe('Please enter a number between 0 and 100');
+            expect(validateOpacityInput('abc')).toBe("Please don't include special characters or letters");
+            expect(validateOpacityInput('fifty')).toBe("Please don't include special characters or letters");
+            expect(validateOpacityInput('test')).toBe("Please don't include special characters or letters");
         });
 
         it('should return error message for empty string', () => {
@@ -95,7 +86,7 @@ describe('changeOpacityCommand', () => {
         });
 
         it('should return error message for whitespace', () => {
-            expect(validateOpacityInput('   ')).toBe('Please enter a number between 0 and 100');
+            expect(validateOpacityInput('   ')).toBe("Please don't include special characters or letters");
         });
 
         it('should accept numeric strings with whitespace', () => {
@@ -104,12 +95,91 @@ describe('changeOpacityCommand', () => {
         });
 
         it('should return error message for special characters', () => {
-            expect(validateOpacityInput('@#$')).toBe('Please enter a number between 0 and 100');
+            expect(validateOpacityInput('@#$')).toBe("Please don't include special characters or letters");
         });
 
         it('should accept edge case values', () => {
             expect(validateOpacityInput('0.1')).toBeNull();
             expect(validateOpacityInput('99.9')).toBeNull();
+        });
+
+        it('should return error message for input with letters mixed with numbers', () => {
+            expect(validateOpacityInput('50abc')).toBe("Please don't include special characters or letters");
+            expect(validateOpacityInput('abc50')).toBe("Please don't include special characters or letters");
+            expect(validateOpacityInput('5a0')).toBe("Please don't include special characters or letters");
+        });
+
+        it('should return error message for input with special characters mixed with numbers', () => {
+            expect(validateOpacityInput('50!')).toBe("Please don't include special characters or letters");
+            expect(validateOpacityInput('50%')).toBe("Please don't include special characters or letters");
+            expect(validateOpacityInput('50.5%')).toBe("Please don't include special characters or letters");
+            expect(validateOpacityInput('$50')).toBe("Please don't include special characters or letters");
+        });
+
+        it('should return error message for multiple decimal points', () => {
+            expect(validateOpacityInput('50.5.5')).toBe("Please don't include special characters or letters");
+            expect(validateOpacityInput('1.2.3')).toBe("Please don't include special characters or letters");
+        });
+
+        it('should accept negative zero', () => {
+            expect(validateOpacityInput('-0')).toBeNull();
+            expect(validateOpacityInput('-0.0')).toBeNull();
+        });
+
+        it('should accept numbers with leading zeros', () => {
+            expect(validateOpacityInput('050')).toBeNull();
+            expect(validateOpacityInput('005')).toBeNull();
+            expect(validateOpacityInput('00.5')).toBeNull();
+        });
+
+        it('should accept decimal numbers without leading zero', () => {
+            expect(validateOpacityInput('.5')).toBe("Please don't include special characters or letters");
+        });
+
+        it('should return error message for numbers with trailing decimal point', () => {
+            expect(validateOpacityInput('50.')).toBe("Please don't include special characters or letters");
+            expect(validateOpacityInput('100.')).toBe("Please don't include special characters or letters");
+        });
+
+        it('should handle whitespace with valid numbers containing decimals', () => {
+            expect(validateOpacityInput('  33.5  ')).toBeNull();
+            expect(validateOpacityInput(' 0.1 ')).toBeNull();
+        });
+
+        it('should return error message for comma as decimal separator', () => {
+            expect(validateOpacityInput('50,5')).toBe("Please don't include special characters or letters");
+            expect(validateOpacityInput('33,33')).toBe("Please don't include special characters or letters");
+        });
+
+        it('should return error message for scientific notation', () => {
+            expect(validateOpacityInput('1e2')).toBe("Please don't include special characters or letters");
+            expect(validateOpacityInput('5E1')).toBe("Please don't include special characters or letters");
+            expect(validateOpacityInput('1.5e1')).toBe("Please don't include special characters or letters");
+        });
+
+        it('should handle edge case of exactly boundary values with decimals', () => {
+            expect(validateOpacityInput('0.0')).toBeNull();
+            expect(validateOpacityInput('100.0')).toBeNull();
+        });
+
+        it('should return error message for unicode characters', () => {
+            expect(validateOpacityInput('50①')).toBe("Please don't include special characters or letters");
+            expect(validateOpacityInput('٥٠')).toBe("Please don't include special characters or letters");
+        });
+
+        it('should return error message for plus sign prefix', () => {
+            expect(validateOpacityInput('+50')).toBe("Please don't include special characters or letters");
+            expect(validateOpacityInput('+100')).toBe("Please don't include special characters or letters");
+        });
+
+        it('should handle very small valid decimal values', () => {
+            expect(validateOpacityInput('0.01')).toBeNull();
+            expect(validateOpacityInput('0.001')).toBeNull();
+        });
+
+        it('should handle very large invalid decimal values', () => {
+            expect(validateOpacityInput('100.01')).toBe('Please enter a number between 0 and 100');
+            expect(validateOpacityInput('100.1')).toBe('Please enter a number between 0 and 100');
         });
     });
 

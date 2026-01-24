@@ -39,19 +39,20 @@ async function promptForOpacity(currentValue: number): Promise<string | undefine
  * @param value The user input string.
  * @returns An error message if the input is invalid, or null if valid.
  */
-function validateOpacityInput(value: string): string | null {
+export function validateOpacityInput(value: string): string | null {
     const num = parseFloat(value);
     const trimmed = value.trim();
+
+    // Check if the number is within the valid range (0 to 100)
+    if (value === '' || num < 0 || num > 100) {
+        return 'Please enter a number between 0 and 100';
+    }
 
     // Check if it's a valid number format (integers or decimals only)
     if (!/^-?\d+(\.\d+)?$/.test(trimmed)) {
         return "Please don't include special characters or letters";
     }
 
-    // Check if the number is within the valid range (0 to 100)
-    if (value.length === 0 || num < 0 || num > 100) {
-        return 'Please enter a number between 0 and 100';
-    }
     return null;
 }
 
