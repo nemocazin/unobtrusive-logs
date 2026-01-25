@@ -30,8 +30,8 @@ The extension is enabled by default when you open VS Code. It will apply the con
 
 You can configure the extension in VS Code settings:
 
-- `logsOpacity.opacity`: Opacity level for logs (0 to 100, default: 50)
-- `logsOpacity.color`: Color used for logs (default: #808080)
+- `unobtrusive-logs.opacity`: Opacity level for logs (0 to 100, default: 50)
+- `unobtrusive-logs.color`: Color used for logs (default: #808080)
 
 ## Contact
 

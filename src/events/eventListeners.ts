@@ -22,7 +22,7 @@ export function registerEventListeners(context: vscode.ExtensionContext): void {
         }),
         // Update decorations when the configuration changes
         vscode.workspace.onDidChangeConfiguration(e => {
-            if (e.affectsConfiguration('logsOpacity.opacity')) {
+            if (e.affectsConfiguration('unobtrusive-logs.opacity')) {
                 recreateDecoration();
                 updateAllVisibleEditors();
             }

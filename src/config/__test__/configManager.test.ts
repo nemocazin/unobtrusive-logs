@@ -39,7 +39,7 @@ describe('Opacity Configuration Tests', () => {
             const result = getOpacityFromConfig();
 
             expect(result).toBe(75);
-            expect(vscode.workspace.getConfiguration).toHaveBeenCalledWith('logsOpacity');
+            expect(vscode.workspace.getConfiguration).toHaveBeenCalledWith('unobtrusive-logs');
             expect(configMock.get).toHaveBeenCalledWith('opacity', 50);
         });
 
@@ -72,7 +72,7 @@ describe('Opacity Configuration Tests', () => {
 
             getOpacityFromConfig();
 
-            expect(vscode.workspace.getConfiguration).toHaveBeenCalledWith('logsOpacity');
+            expect(vscode.workspace.getConfiguration).toHaveBeenCalledWith('unobtrusive-logs');
         });
 
         it('should call get with correct parameters', () => {
@@ -89,7 +89,7 @@ describe('Opacity Configuration Tests', () => {
         it('should save opacity value to global configuration', async () => {
             await saveOpacityToConfig(75);
 
-            expect(vscode.workspace.getConfiguration).toHaveBeenCalledWith('logsOpacity');
+            expect(vscode.workspace.getConfiguration).toHaveBeenCalledWith('unobtrusive-logs');
             expect(configMock.update).toHaveBeenCalledWith('opacity', 75, vscode.ConfigurationTarget.Global);
         });
 
@@ -184,7 +184,7 @@ describe('Opacity Configuration Tests', () => {
             await saveOpacityToConfig(75);
             getOpacityFromConfig();
 
-            expect(vscode.workspace.getConfiguration).toHaveBeenCalledWith('logsOpacity');
+            expect(vscode.workspace.getConfiguration).toHaveBeenCalledWith('unobtrusive-logs');
             expect(vscode.workspace.getConfiguration).toHaveBeenCalledTimes(2);
         });
     });
@@ -196,7 +196,7 @@ describe('Opacity Configuration Tests', () => {
             const result = getColorFromConfig();
 
             expect(result).toBe('#FF5733');
-            expect(vscode.workspace.getConfiguration).toHaveBeenCalledWith('logsOpacity');
+            expect(vscode.workspace.getConfiguration).toHaveBeenCalledWith('unobtrusive-logs');
             expect(configMock.get).toHaveBeenCalledWith('color', '#808080');
         });
 
@@ -223,7 +223,7 @@ describe('Opacity Configuration Tests', () => {
 
             getColorFromConfig();
 
-            expect(vscode.workspace.getConfiguration).toHaveBeenCalledWith('logsOpacity');
+            expect(vscode.workspace.getConfiguration).toHaveBeenCalledWith('unobtrusive-logs');
         });
 
         it('should call get with correct parameters', () => {
@@ -240,7 +240,7 @@ describe('Opacity Configuration Tests', () => {
         it('should save color value to global configuration', async () => {
             await saveColorToConfig('#FF5733');
 
-            expect(vscode.workspace.getConfiguration).toHaveBeenCalledWith('logsOpacity');
+            expect(vscode.workspace.getConfiguration).toHaveBeenCalledWith('unobtrusive-logs');
             expect(configMock.update).toHaveBeenCalledWith('color', '#FF5733', vscode.ConfigurationTarget.Global);
         });
 
@@ -326,7 +326,7 @@ describe('Opacity Configuration Tests', () => {
             await saveColorToConfig('#808080');
             getColorFromConfig();
 
-            expect(vscode.workspace.getConfiguration).toHaveBeenCalledWith('logsOpacity');
+            expect(vscode.workspace.getConfiguration).toHaveBeenCalledWith('unobtrusive-logs');
             expect(vscode.workspace.getConfiguration).toHaveBeenCalledTimes(2);
         });
     });

@@ -3,7 +3,7 @@
     "displayName": "Unobtrusive Logs",
     "description": "Reduces the visual impact of logs during development.",
     "publisher": "NemoCazin",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "icon": "assets/icon.png",
     "repository": {
         "type": "git",
@@ -32,14 +32,14 @@
         "configuration": {
             "title": "Logs Appearance",
             "properties": {
-                "logsOpacity.opacity": {
+                "unobtrusive-logs.opacity": {
                     "type": "number",
                     "default": 50,
                     "minimum": 0,
                     "maximum": 100,
                     "description": "Opacity level for logs (0 to 100)."
                 },
-                "logsOpacity.color": {
+                "unobtrusive-logs.color": {
                     "type": "string",
                     "default": "#808080",
                     "description": "Color used for logs.",
@@ -52,7 +52,7 @@
     "scripts": {
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
-        "clean": "rm -rf ./dist ./coverage",
+        "clean": "rm -rf ./dist ./coverage *.vsix",
         "test": "vitest run",
         "coverage": "vitest run --coverage",
         "vscode:prepublish": "npm run compile",

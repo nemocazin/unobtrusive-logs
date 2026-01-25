@@ -190,7 +190,7 @@ describe('registerEventListeners', () => {
                 onDidChangeConfigurationCallback(mockConfigChangeEvent as vscode.ConfigurationChangeEvent);
             }
 
-            expect(mockConfigChangeEvent.affectsConfiguration).toHaveBeenCalledWith('logsOpacity.opacity');
+            expect(mockConfigChangeEvent.affectsConfiguration).toHaveBeenCalledWith('unobtrusive-logs.opacity');
             expect(recreateDecoration).toHaveBeenCalledOnce();
             expect(updateAllVisibleEditors).toHaveBeenCalledOnce();
         });
@@ -205,7 +205,7 @@ describe('registerEventListeners', () => {
                 onDidChangeConfigurationCallback(mockConfigChangeEvent as vscode.ConfigurationChangeEvent);
             }
 
-            expect(mockConfigChangeEvent.affectsConfiguration).toHaveBeenCalledWith('logsOpacity.opacity');
+            expect(mockConfigChangeEvent.affectsConfiguration).toHaveBeenCalledWith('unobtrusive-logs.opacity');
             expect(recreateDecoration).not.toHaveBeenCalled();
             expect(updateAllVisibleEditors).not.toHaveBeenCalled();
         });
@@ -218,7 +218,7 @@ describe('registerEventListeners', () => {
                 onDidChangeConfigurationCallback(mockConfigChangeEvent as vscode.ConfigurationChangeEvent);
             }
 
-            expect(mockConfigChangeEvent.affectsConfiguration).toHaveBeenCalledWith('logsOpacity.opacity');
+            expect(mockConfigChangeEvent.affectsConfiguration).toHaveBeenCalledWith('unobtrusive-logs.opacity');
         });
     });
 
