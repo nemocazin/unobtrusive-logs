@@ -13,7 +13,7 @@ VS Code extension that adjusts the visual appearance of log statements in your c
 
 - Customizable opacity for log statements (0-100%)
 - Configurable color for log statements
-- Works with any file
+- Compatible with Go, JavaScript, and TypeScript (more languages coming soon)
 - Simple commands for quick adjustments
 - Compatible with [Syntax Gaslighting](https://github.com/eNiiju/syntax-gaslighting/tree/main)
 
