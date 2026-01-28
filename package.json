@@ -22,15 +22,15 @@
         "commands": [
             {
                 "command": "unobtrusive-logs.changeOpacity",
-                "title": "Logs: Change Opacity"
+                "title": "Unobtrusive Logs: Change Opacity"
             },
             {
                 "command": "unobtrusive-logs.changeColor",
-                "title": "Logs: Change Color"
+                "title": "Unobtrusive Logs: Change Color"
             }
         ],
         "configuration": {
-            "title": "Logs Appearance",
+            "title": "Unobtrusive Logs",
             "properties": {
                 "unobtrusive-logs.opacity": {
                     "type": "number",
