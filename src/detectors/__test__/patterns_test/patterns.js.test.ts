@@ -35,25 +35,5 @@ describe('LOG_PATTERNS', () => {
         it('should match console.trace statements', () => {
             testPattern(0, 'console.trace("test");');
         });
-
-        it('should match log.info statements', () => {
-            testPattern(1, 'log.info("test");');
-        });
-
-        it('should match log.debug statements', () => {
-            testPattern(1, 'log.debug("test");');
-        });
-
-        it('should match log.verbose statements', () => {
-            testPattern(1, 'log.verbose("test");');
-        });
-
-        it('should match log.warn statements', () => {
-            testPattern(1, 'log.warn("test");');
-        });
-
-        it('should match log.error statements', () => {
-            testPattern(1, 'log.error("test");');
-        });
     });
 });

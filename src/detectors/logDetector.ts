@@ -31,7 +31,11 @@ export function findLogStatements(editor: vscode.TextEditor): vscode.DecorationO
  * @param editor The text editor containing the text.
  * @returns An array of decoration options for each match found.
  */
-function findMatchesWithRegex(text: string, regex: RegExp, editor: vscode.TextEditor): vscode.DecorationOptions[] {
+export function findMatchesWithRegex(
+    text: string,
+    regex: RegExp,
+    editor: vscode.TextEditor,
+): vscode.DecorationOptions[] {
     const ranges: vscode.DecorationOptions[] = [];
     let match;
 
@@ -51,7 +55,7 @@ function findMatchesWithRegex(text: string, regex: RegExp, editor: vscode.TextEd
  * @param languageId The language ID of the document.
  * @returns An array of regex patterns for the specified language.
  */
-function getLogPatternsForLanguage(languageId: string): RegExp[] {
+export function getLogPatternsForLanguage(languageId: string): RegExp[] {
     const languageMap: { [key: string]: keyof typeof LOG_PATTERNS } = {
         typescript: 'typescript',
         javascript: 'javascript',
@@ -60,7 +64,12 @@ function getLogPatternsForLanguage(languageId: string): RegExp[] {
         go: 'go',
     };
 
-    // Determine the appropriate log patterns for the language
+    // Get patterns for the language
     const patternKey = languageMap[languageId];
-    return patternKey ? LOG_PATTERNS[patternKey] : LOG_PATTERNS.typescript;
+    const languagePatterns = patternKey ? LOG_PATTERNS[patternKey] : LOG_PATTERNS.typescript;
+
+    // Combine with general patterns
+    const generalPatterns = LOG_PATTERNS.general;
+
+    return [...languagePatterns, ...generalPatterns];
 }

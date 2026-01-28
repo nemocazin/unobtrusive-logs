@@ -13,32 +13,32 @@ describe('LOG_PATTERNS', () => {
             }
         };
 
-        it('should match log.Println statements', () => {
-            testPattern(0, 'log.Println("test")');
+        it('should match logger.Info statements', () => {
+            testPattern(0, 'logger.Info("test")');
         });
 
-        it('should match log.Printf statements', () => {
-            testPattern(1, 'log.Printf("test")');
+        it('should match logger.Debug statements', () => {
+            testPattern(0, 'logger.Debug("debug")');
         });
 
-        it('should match log.Print statements', () => {
-            testPattern(2, 'log.Print("test")');
+        it('should match logger.Error statements', () => {
+            testPattern(0, 'logger.Error("error")');
         });
 
-        it('should match log.Fatal statements', () => {
-            testPattern(3, 'log.Fatal("test")');
+        it('should match logger.Warn statements', () => {
+            testPattern(0, 'logger.Warn("warning")');
         });
 
-        it('should match log.Fatalf statements', () => {
-            testPattern(4, 'log.Fatalf("test")');
+        it('should match logger.Trace statements', () => {
+            testPattern(0, 'logger.Trace("trace")');
         });
 
-        it('should match log.Panic statements', () => {
-            testPattern(5, 'log.Panic("test")');
+        it('should match logger.Fatal statements', () => {
+            testPattern(0, 'logger.Fatal("fatal")');
         });
 
-        it('should match log.Panicf statements', () => {
-            testPattern(6, 'log.Panicf("test")');
+        it('should match logger.Panic statements', () => {
+            testPattern(0, 'logger.Panic("panic")');
         });
     });
 });
