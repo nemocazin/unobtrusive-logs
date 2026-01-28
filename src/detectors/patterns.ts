@@ -9,4 +9,6 @@ export const LOG_PATTERNS = {
     javascript: [/console\.(log|warn|error|info|debug|trace)\s*\([^)]*\);?/g],
 
     go: [/logger\.\w+\s*\([^)]*\)/g],
+
+    cpp: [/std::(cout|cerr|clog)\s*<<[^;]*;?/g, /(cout|cerr|clog)\s*<<[^;]*;?/g],
 };

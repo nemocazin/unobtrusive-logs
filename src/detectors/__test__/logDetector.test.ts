@@ -141,6 +141,69 @@ describe('logDetector', () => {
 
             expect(results.length).toBe(0);
         });
+
+        it('should find std::cout in C++', () => {
+            const text = 'std::cout << "Hello World" << std::endl;';
+            const editor = createMockEditor(text, 'cpp');
+
+            const results = findLogStatements(editor);
+
+            expect(results.length).toBeGreaterThan(0);
+        });
+
+        it('should find std::cerr in C++', () => {
+            const text = 'std::cerr << "Error message";';
+            const editor = createMockEditor(text, 'cpp');
+
+            const results = findLogStatements(editor);
+
+            expect(results.length).toBeGreaterThan(0);
+        });
+
+        it('should find std::clog in C++', () => {
+            const text = 'std::clog << "Log message";';
+            const editor = createMockEditor(text, 'cpp');
+
+            const results = findLogStatements(editor);
+
+            expect(results.length).toBeGreaterThan(0);
+        });
+
+        it('should find cout without std:: prefix in C++', () => {
+            const text = 'cout << "Hello" << endl;';
+            const editor = createMockEditor(text, 'cpp');
+
+            const results = findLogStatements(editor);
+
+            expect(results.length).toBeGreaterThan(0);
+        });
+
+        it('should find cerr without std:: prefix in C++', () => {
+            const text = 'cerr << "Error";';
+            const editor = createMockEditor(text, 'cpp');
+
+            const results = findLogStatements(editor);
+
+            expect(results.length).toBeGreaterThan(0);
+        });
+
+        it('should find clog without std:: prefix in C++', () => {
+            const text = 'clog << "Log";';
+            const editor = createMockEditor(text, 'cpp');
+
+            const results = findLogStatements(editor);
+
+            expect(results.length).toBeGreaterThan(0);
+        });
+
+        it('should find multiple C++ stream outputs', () => {
+            const text = 'std::cout << "A";\ncerr << "B";\nstd::clog << "C";';
+            const editor = createMockEditor(text, 'cpp');
+
+            const results = findLogStatements(editor);
+
+            expect(results.length).toBeGreaterThanOrEqual(3);
+        });
     });
 
     describe('findMatchesWithRegex', () => {
@@ -254,6 +317,20 @@ describe('logDetector', () => {
             patterns.forEach(pattern => {
                 expect(pattern).toBeInstanceOf(RegExp);
             });
+        });
+
+        it('should return cpp patterns for cpp language', () => {
+            const patterns = getLogPatternsForLanguage('cpp');
+
+            expect(patterns.length).toBeGreaterThan(0);
+            expect(Array.isArray(patterns)).toBe(true);
+        });
+
+        it('should map c++ to cpp patterns', () => {
+            const cppPatterns = getLogPatternsForLanguage('cpp');
+            const cPlusPlusPatterns = getLogPatternsForLanguage('c++');
+
+            expect(cPlusPlusPatterns.length).toBe(cppPatterns.length);
         });
     });
 });

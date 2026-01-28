@@ -62,6 +62,7 @@ export function getLogPatternsForLanguage(languageId: string): RegExp[] {
         typescriptreact: 'typescript',
         javascriptreact: 'javascript',
         go: 'go',
+        cpp: 'cpp',
     };
 
     // Get patterns for the language
