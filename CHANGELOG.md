@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1] - 2025-02-01
+
+### Changed
+
+- Modified the general regex to detect statements with multiple chained function calls (e.g., `log.error("test").format().time();`)
+- Improved ESLint rules
+
 ## [1.1.0] - 2025-01-28
 
 ### Changed
