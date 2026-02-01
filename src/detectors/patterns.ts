@@ -2,7 +2,7 @@
  * Predefined log statement patterns for various programming languages.
  */
 export const LOG_PATTERNS = {
-    general: [/\blog\.\w+\s*\([^)]*\);?/g],
+    general: [/\blog\.\w+\s*\([^()]*(?:\([^()]*\)[^()]*)*\)(?:\.\w+\s*\([^()]*(?:\([^()]*\)[^()]*)*\))*;?/g],
 
     typescript: [/console\.(log|warn|error|info|debug|trace)\s*\([^)]*\);?/g],
 

@@ -32,5 +32,28 @@ describe('LOG_PATTERNS', () => {
         it('should match log.error statements', () => {
             testPattern(0, 'log.error("test");');
         });
+
+        it('should match logs with another function behind', () => {
+            testPattern(0, 'log.error("test").format();');
+        });
+
+        it('should match logs with 2 functions behind', () => {
+            testPattern(0, 'log.error("test").format().time();');
+        });
+
+        it('should match logs with 10 functions behind', () => {
+            testPattern(
+                0,
+                'log.error("test").format().time().relog().relog().relog().relog().relog().relog().relog().relog();',
+            );
+        });
+
+        it('should match logs with brackets inside', () => {
+            testPattern(0, 'log.error("Test ${id.toString()} "is happening);');
+        });
+
+        it('should match logs with brackets inside and fonctions behind', () => {
+            testPattern(0, 'log.error("Test ${id.toString()} "is happening).format().time();');
+        });
     });
 });
