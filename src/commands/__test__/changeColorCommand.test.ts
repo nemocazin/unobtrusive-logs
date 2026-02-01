@@ -449,7 +449,7 @@ describe('changeColorCommand', () => {
                 description: '',
                 hexCode: '#FF0000',
             });
-            saveColorToConfigMock.mockImplementation(async () => {
+            saveColorToConfigMock.mockImplementation(() => {
                 callOrder.push('save');
             });
             recreateDecorationMock.mockImplementation(() => {
@@ -460,7 +460,6 @@ describe('changeColorCommand', () => {
             });
             showInformationMessageMock.mockImplementation(() => {
                 callOrder.push('confirm');
-                return Promise.resolve(undefined);
             });
 
             await handleChangeColorCommand();
@@ -483,7 +482,7 @@ describe('changeColorCommand', () => {
                 {
                     placeHolder: 'Select a color for logs',
                     matchOnDescription: true,
-                }
+                },
             );
         });
 
@@ -494,7 +493,7 @@ describe('changeColorCommand', () => {
 
             const calls = showQuickPickMock.mock.calls;
             expect(calls.length).toBeGreaterThan(0);
-            const colorOptions = calls[0]?.[0];
+            const colorOptions = calls[0]?.[0] as unknown[];
 
             expect(colorOptions).toHaveLength(30);
         });
@@ -506,7 +505,7 @@ describe('changeColorCommand', () => {
 
             const calls = showQuickPickMock.mock.calls;
             expect(calls.length).toBeGreaterThan(0);
-            const options = calls[0]?.[1];
+            const options = calls[0]?.[1] as { matchOnDescription?: boolean } | undefined;
 
             expect(options?.matchOnDescription).toBe(true);
         });

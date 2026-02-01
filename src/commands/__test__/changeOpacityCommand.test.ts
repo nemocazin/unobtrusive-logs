@@ -199,11 +199,15 @@ describe('changeOpacityCommand', () => {
 
             await handleChangeOpacityCommand();
 
-            expect(showInputBoxMock).toHaveBeenCalledWith({
-                prompt: 'Enter opacity value (0 = invisible, 100 = normal)',
-                value: '75',
-                validateInput: expect.any(Function),
-            });
+            expect(showInputBoxMock).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    prompt: 'Enter opacity value (0 = invisible, 100 = normal)',
+                    value: '75',
+                }),
+            );
+
+            const callArgs = showInputBoxMock.mock.calls[0]?.[0] as { validateInput?: boolean } | undefined;
+            expect(typeof callArgs?.validateInput).toBe('function');
         });
 
         it('should save new opacity value when user provides valid input', async () => {
@@ -281,7 +285,7 @@ describe('changeOpacityCommand', () => {
 
             getOpacityFromConfigMock.mockReturnValue(50);
             showInputBoxMock.mockResolvedValue('60');
-            saveOpacityToConfigMock.mockImplementation(async () => {
+            saveOpacityToConfigMock.mockImplementation(() => {
                 callOrder.push('save');
             });
             recreateDecorationMock.mockImplementation(() => {
@@ -292,7 +296,6 @@ describe('changeOpacityCommand', () => {
             });
             showInformationMessageMock.mockImplementation(() => {
                 callOrder.push('confirm');
-                return Promise.resolve(undefined);
             });
 
             await handleChangeOpacityCommand();
@@ -329,7 +332,7 @@ describe('changeOpacityCommand', () => {
 
             const calls = showInputBoxMock.mock.calls;
             expect(calls.length).toBeGreaterThan(0);
-            const callArgs = calls[0]?.[0];
+            const callArgs = calls[0]?.[0] as { prompt?: boolean } | undefined;
 
             expect(callArgs?.prompt).toBe('Enter opacity value (0 = invisible, 100 = normal)');
         });
@@ -342,7 +345,7 @@ describe('changeOpacityCommand', () => {
 
             const calls = showInputBoxMock.mock.calls;
             expect(calls.length).toBeGreaterThan(0);
-            const callArgs = calls[0]?.[0];
+            const callArgs = calls[0]?.[0] as { value?: boolean } | undefined;
 
             expect(callArgs?.value).toBe('65');
         });
@@ -354,7 +357,7 @@ describe('changeOpacityCommand', () => {
 
             const calls = showInputBoxMock.mock.calls;
             expect(calls.length).toBeGreaterThan(0);
-            const callArgs = calls[0]?.[0];
+            const callArgs = calls[0]?.[0] as { validateInput?: boolean } | undefined;
 
             expect(callArgs?.validateInput).toBeTypeOf('function');
         });

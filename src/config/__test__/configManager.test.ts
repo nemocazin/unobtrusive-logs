@@ -13,19 +13,23 @@ vi.mock('vscode', () => ({
 }));
 
 describe('Opacity Configuration Tests', () => {
-    let configMock: vscode.WorkspaceConfiguration;
+    let configMock: {
+        get: ReturnType<typeof vi.fn>;
+        update: ReturnType<typeof vi.fn>;
+        has: ReturnType<typeof vi.fn>;
+        inspect: ReturnType<typeof vi.fn>;
+    };
 
     beforeEach(() => {
-        // Create a mock for WorkspaceConfiguration
+        // Create config  mock
         configMock = {
             get: vi.fn(),
             update: vi.fn().mockResolvedValue(undefined),
             has: vi.fn(),
             inspect: vi.fn(),
-        } as vscode.WorkspaceConfiguration;
+        };
 
-        // Mock getConfiguration to return our configMock
-        vi.mocked(vscode.workspace.getConfiguration).mockReturnValue(configMock);
+        vi.mocked(vscode.workspace.getConfiguration).mockReturnValue(configMock as vscode.WorkspaceConfiguration);
     });
 
     afterEach(() => {
@@ -210,7 +214,7 @@ describe('Opacity Configuration Tests', () => {
 
         it('should handle various hex color formats', () => {
             const colors = ['#000000', '#FFFFFF', '#123ABC', '#fff'];
-            
+
             colors.forEach(color => {
                 vi.mocked(configMock.get).mockReturnValue(color);
                 const result = getColorFromConfig();

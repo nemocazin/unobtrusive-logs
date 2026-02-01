@@ -16,16 +16,20 @@ vi.mock('../../utils/converter');
 
 describe('Decoration Manager Tests', () => {
     let mockDecoration: vscode.TextEditorDecorationType;
+    let mockDispose: ReturnType<typeof vi.fn>;
     let getOpacityFromConfigMock: ReturnType<typeof vi.fn>;
     let getColorFromConfigMock: ReturnType<typeof vi.fn>;
     let convertOpacityToHexMock: ReturnType<typeof vi.fn>;
     let createTextEditorDecorationTypeMock: ReturnType<typeof vi.fn>;
 
     beforeEach(() => {
+        // Create a mock dispose function
+        mockDispose = vi.fn();
+
         // Create a mock decoration object
         mockDecoration = {
             key: 'mock-decoration-key',
-            dispose: vi.fn(),
+            dispose: mockDispose,
         } as vscode.TextEditorDecorationType;
 
         // Setup mocks with proper typing
@@ -107,7 +111,7 @@ describe('Decoration Manager Tests', () => {
 
             const calls = createTextEditorDecorationTypeMock.mock.calls;
             expect(calls.length).toBeGreaterThan(0);
-            const callArgs = calls[0]?.[0];
+            const callArgs = calls[0]?.[0] as { color?: string } | undefined;
             expect(callArgs?.color).toMatch(/^#808080/);
         });
 
@@ -120,7 +124,7 @@ describe('Decoration Manager Tests', () => {
 
             const calls = createTextEditorDecorationTypeMock.mock.calls;
             expect(calls.length).toBeGreaterThan(0);
-            const callArgs = calls[0]?.[0];
+            const callArgs = calls[0]?.[0] as { fontStyle?: string } | undefined;
             expect(callArgs?.fontStyle).toBe('italic');
         });
 
@@ -147,7 +151,7 @@ describe('Decoration Manager Tests', () => {
             // Then dispose it
             disposeDecoration();
 
-            expect(mockDecoration.dispose).toHaveBeenCalledTimes(1);
+            expect(mockDispose).toHaveBeenCalledTimes(1);
         });
 
         it('should handle dispose when no decoration exists', () => {
@@ -178,12 +182,13 @@ describe('Decoration Manager Tests', () => {
 
             createDecoration();
 
-            const firstDecoration = mockDecoration;
+            const firstDispose = mockDispose;
 
             // Create a new mock for the recreated decoration
+            const newMockDispose = vi.fn();
             const newMockDecoration = {
                 key: 'new-mock-decoration-key',
-                dispose: vi.fn(),
+                dispose: newMockDispose,
             } as vscode.TextEditorDecorationType;
             createTextEditorDecorationTypeMock.mockReturnValue(newMockDecoration);
 
@@ -194,7 +199,7 @@ describe('Decoration Manager Tests', () => {
 
             recreateDecoration();
 
-            expect(firstDecoration.dispose).toHaveBeenCalledTimes(1);
+            expect(firstDispose).toHaveBeenCalledTimes(1);
             expect(createTextEditorDecorationTypeMock).toHaveBeenCalledTimes(2);
             expect(getOpacityFromConfigMock).toHaveBeenCalledTimes(2);
         });
@@ -224,7 +229,7 @@ describe('Decoration Manager Tests', () => {
             getColorFromConfigMock.mockReturnValue('#FFFFFF');
             recreateDecoration();
 
-            expect(mockDecoration.dispose).toHaveBeenCalledTimes(1);
+            expect(mockDispose).toHaveBeenCalledTimes(1);
             expect(createTextEditorDecorationTypeMock).toHaveBeenLastCalledWith({});
         });
 
@@ -238,7 +243,7 @@ describe('Decoration Manager Tests', () => {
             convertOpacityToHexMock.mockReturnValue('99');
             recreateDecoration();
 
-            expect(mockDecoration.dispose).toHaveBeenCalledTimes(1);
+            expect(mockDispose).toHaveBeenCalledTimes(1);
             expect(createTextEditorDecorationTypeMock).toHaveBeenLastCalledWith({
                 color: '#80808099',
                 fontStyle: 'italic',
@@ -262,7 +267,7 @@ describe('Decoration Manager Tests', () => {
             });
 
             expect(createTextEditorDecorationTypeMock).toHaveBeenCalledTimes(5);
-            expect(mockDecoration.dispose).toHaveBeenCalledTimes(4); // All but the first
+            expect(mockDispose).toHaveBeenCalledTimes(4); // All but the first
         });
     });
 
@@ -282,13 +287,13 @@ describe('Decoration Manager Tests', () => {
             convertOpacityToHexMock.mockReturnValue('BF');
             recreateDecoration();
 
-            expect(mockDecoration.dispose).toHaveBeenCalledTimes(1);
+            expect(mockDispose).toHaveBeenCalledTimes(1);
             expect(createTextEditorDecorationTypeMock).toHaveBeenCalledTimes(2);
 
             // Dispose
             disposeDecoration();
 
-            expect(mockDecoration.dispose).toHaveBeenCalledTimes(2);
+            expect(mockDispose).toHaveBeenCalledTimes(2);
         });
 
         it('should maintain correct decoration state through multiple changes', () => {

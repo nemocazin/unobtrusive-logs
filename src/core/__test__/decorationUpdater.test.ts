@@ -35,7 +35,7 @@ vi.mock('vscode', () => ({
 
 describe('decorationUpdater', () => {
     const mockSetDecorations = vi.fn();
-    const mockEditor: vscode.TextEditor = {
+    const mockEditor = {
         setDecorations: mockSetDecorations,
     } as unknown as vscode.TextEditor;
 
@@ -85,12 +85,15 @@ describe('decorationUpdater', () => {
 
     describe('updateAllVisibleEditors', () => {
         it('should update decorations for all visible editors', () => {
-            const mockEditor1: vscode.TextEditor = {
-                setDecorations: vi.fn(),
+            const mockSetDecorations1 = vi.fn();
+            const mockSetDecorations2 = vi.fn();
+
+            const mockEditor1 = {
+                setDecorations: mockSetDecorations1,
             } as unknown as vscode.TextEditor;
 
-            const mockEditor2: vscode.TextEditor = {
-                setDecorations: vi.fn(),
+            const mockEditor2 = {
+                setDecorations: mockSetDecorations2,
             } as unknown as vscode.TextEditor;
 
             const mockRanges: vscode.DecorationOptions[] = [{ range: new vscode.Range(0, 0, 0, 10) }];
@@ -103,8 +106,8 @@ describe('decorationUpdater', () => {
             expect(findLogStatements).toHaveBeenCalledTimes(2);
             expect(findLogStatements).toHaveBeenCalledWith(mockEditor1);
             expect(findLogStatements).toHaveBeenCalledWith(mockEditor2);
-            expect(mockEditor1.setDecorations).toHaveBeenCalledWith(logDecoration, mockRanges);
-            expect(mockEditor2.setDecorations).toHaveBeenCalledWith(logDecoration, mockRanges);
+            expect(mockSetDecorations1).toHaveBeenCalledWith(logDecoration, mockRanges);
+            expect(mockSetDecorations2).toHaveBeenCalledWith(logDecoration, mockRanges);
         });
 
         it('should handle empty visible editors array', () => {
@@ -118,8 +121,10 @@ describe('decorationUpdater', () => {
 
     describe('initializeDecorations', () => {
         it('should update decorations for active editor when it exists', () => {
-            const mockActiveEditor: vscode.TextEditor = {
-                setDecorations: vi.fn(),
+            const mockSetDecorationsActive = vi.fn();
+
+            const mockActiveEditor = {
+                setDecorations: mockSetDecorationsActive,
             } as unknown as vscode.TextEditor;
 
             const mockRanges: vscode.DecorationOptions[] = [{ range: new vscode.Range(0, 0, 0, 10) }];
@@ -130,7 +135,7 @@ describe('decorationUpdater', () => {
             initializeDecorations();
 
             expect(findLogStatements).toHaveBeenCalledWith(mockActiveEditor);
-            expect(mockActiveEditor.setDecorations).toHaveBeenCalledWith(logDecoration, mockRanges);
+            expect(mockSetDecorationsActive).toHaveBeenCalledWith(logDecoration, mockRanges);
         });
 
         it('should do nothing when no active editor exists', () => {

@@ -90,7 +90,7 @@ describe('commandRegistry', () => {
 
             const calls = registerCommandMock.mock.calls;
             expect(calls.length).toBeGreaterThan(0);
-            const commandId = calls[0]?.[0];
+            const commandId = calls[0]?.[0] as string;
 
             expect(commandId).toBe('unobtrusive-logs.changeOpacity');
         });
@@ -100,7 +100,7 @@ describe('commandRegistry', () => {
 
             const calls = registerCommandMock.mock.calls;
             expect(calls.length).toBeGreaterThan(0);
-            const callback = calls[0]?.[1];
+            const callback = calls[0]?.[1] as typeof changeOpacityCommand.handleChangeOpacityCommand;
 
             expect(callback).toBe(changeOpacityCommand.handleChangeOpacityCommand);
         });
@@ -167,8 +167,10 @@ describe('commandRegistry', () => {
 
             const disposable = mockContext.subscriptions[0];
             expect(disposable).toBeDefined();
-            expect(disposable?.dispose).toBeDefined();
-            expect(typeof disposable?.dispose).toBe('function');
+            expect(disposable).toHaveProperty('dispose');
+
+            const hasDisposeFunction = disposable && typeof disposable.dispose === 'function';
+            expect(hasDisposeFunction).toBe(true);
         });
 
         it('should create disposable from registerCommand return value', () => {
