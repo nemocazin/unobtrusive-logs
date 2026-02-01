@@ -7,6 +7,10 @@
 - Modified the general regex to detect statements with multiple chained function calls (e.g., `log.error("test").format().time();`)
 - Improved ESLint rules
 
+### Added
+
+- New icon for the extension (Thanks to @eNiiju)
+
 ## [1.1.0] - 2025-01-28
 
 ### Changed
