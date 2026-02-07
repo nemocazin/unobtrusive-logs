@@ -9,6 +9,7 @@ import {
 } from '../decoration';
 import * as configManager from '../../config/configManager';
 import * as converter from '../../utils/converter';
+import { updateAllVisibleEditors } from '../decorationUpdater';
 
 // Mock dependencies
 vi.mock('vscode', () => ({
@@ -59,6 +60,19 @@ describe('Decoration Manager Tests', () => {
     });
 
     describe('createDecoration', () => {
+        it('should create decoration with opacity styling and default color', () => {
+            getOpacityFromConfigMock.mockReturnValue(50);
+            getColorFromConfigMock.mockReturnValue('default');
+
+            createDecoration();
+
+            expect(getOpacityFromConfigMock).toHaveBeenCalledTimes(1);
+            expect(createTextEditorDecorationTypeMock).toHaveBeenCalledWith({
+                'opacity': '0.5',
+                'fontStyle': 'italic',
+            });
+        });
+
         it('should create decoration with opacity styling when opacity is less than 100', () => {
             getOpacityFromConfigMock.mockReturnValue(50);
             getColorFromConfigMock.mockReturnValue('#808080');
@@ -201,7 +215,7 @@ describe('Decoration Manager Tests', () => {
 
             expect(firstDispose).toHaveBeenCalledTimes(1);
             expect(createTextEditorDecorationTypeMock).toHaveBeenCalledTimes(2);
-            expect(getOpacityFromConfigMock).toHaveBeenCalledTimes(3);
+            expect(getOpacityFromConfigMock).toHaveBeenCalledTimes(2);
         });
 
         it('should create decoration with updated opacity settings', () => {
@@ -213,24 +227,14 @@ describe('Decoration Manager Tests', () => {
 
             // Recreate with 100% opacity
             getOpacityFromConfigMock.mockReturnValue(100);
+            convertOpacityToHexMock.mockReturnValue('100');
             recreateDecoration();
 
-            // The second call should create empty decoration
-            expect(createTextEditorDecorationTypeMock).toHaveBeenLastCalledWith({});
-        });
-
-        it('should handle recreation from opacity to 100%', () => {
-            getOpacityFromConfigMock.mockReturnValue(60);
-            getColorFromConfigMock.mockReturnValue('#808080');
-            convertOpacityToHexMock.mockReturnValue('99');
-            createDecoration();
-
-            getOpacityFromConfigMock.mockReturnValue(100);
-            getColorFromConfigMock.mockReturnValue('#FFFFFF');
-            recreateDecoration();
-
-            expect(mockDispose).toHaveBeenCalledTimes(1);
-            expect(createTextEditorDecorationTypeMock).toHaveBeenLastCalledWith({});
+            // The second call should create decoration with 100% opacity
+            expect(createTextEditorDecorationTypeMock).toHaveBeenLastCalledWith({
+                color: '#808080100',
+                'fontStyle': 'italic',
+            });
         });
 
         it('should handle recreation from 100% to opacity', () => {
@@ -269,131 +273,64 @@ describe('Decoration Manager Tests', () => {
             expect(createTextEditorDecorationTypeMock).toHaveBeenCalledTimes(5);
             expect(mockDispose).toHaveBeenCalledTimes(4); // All but the first
         });
+
+        it('should return early when conditions are not met', () => {
+            getOpacityFromConfigMock.mockReturnValue(50);
+            getColorFromConfigMock.mockReturnValue('#808080');
+            convertOpacityToHexMock.mockReturnValue('80');
+            createDecoration();
+
+            vi.clearAllMocks();
+
+            toggleFromConfigMock.mockReturnValue(false);
+
+            recreateDecoration();
+
+            expect(mockDispose).toHaveBeenCalledTimes(1);
+            expect(createTextEditorDecorationTypeMock).toHaveBeenCalledTimes(1);
+            expect(createTextEditorDecorationTypeMock).toHaveBeenCalledWith({});
+            expect(updateAllVisibleEditors).not.toHaveBeenCalled();
+        });
     });
 
     describe('checkDecorationConditions', () => {
+        it('should return true when toggle is enabled', () => {
+            toggleFromConfigMock.mockReturnValue(true);
+            getOpacityFromConfigMock.mockReturnValue(50);
+            getColorFromConfigMock.mockReturnValue('#808080');
+            convertOpacityToHexMock.mockReturnValue('50');
+
+            const result = checkDecorationConditions();
+
+            expect(result).toBe(true);
+            expect(toggleFromConfigMock).toHaveBeenCalledTimes(1);
+        });
+
         it('should return false when toggle is disabled', () => {
             toggleFromConfigMock.mockReturnValue(false);
-            getOpacityFromConfigMock.mockReturnValue(50);
 
             const result = checkDecorationConditions();
 
             expect(result).toBe(false);
             expect(toggleFromConfigMock).toHaveBeenCalledTimes(1);
             expect(createTextEditorDecorationTypeMock).toHaveBeenCalledWith({});
-        });
-
-        it('should return false when opacity is 100', () => {
-            toggleFromConfigMock.mockReturnValue(true);
-            getOpacityFromConfigMock.mockReturnValue(100);
-
-            const result = checkDecorationConditions();
-
-            expect(result).toBe(false);
-            expect(getOpacityFromConfigMock).toHaveBeenCalledTimes(1);
-            expect(createTextEditorDecorationTypeMock).toHaveBeenCalledWith({});
-        });
-
-        it('should return true when toggle is enabled and opacity is less than 100', () => {
-            toggleFromConfigMock.mockReturnValue(true);
-            getOpacityFromConfigMock.mockReturnValue(50);
-
-            const result = checkDecorationConditions();
-
-            expect(result).toBe(true);
-            expect(toggleFromConfigMock).toHaveBeenCalledTimes(1);
-            expect(getOpacityFromConfigMock).toHaveBeenCalledTimes(1);
-        });
-
-        it('should return true when toggle is enabled and opacity is 0', () => {
-            toggleFromConfigMock.mockReturnValue(true);
-            getOpacityFromConfigMock.mockReturnValue(0);
-
-            const result = checkDecorationConditions();
-
-            expect(result).toBe(true);
-            expect(toggleFromConfigMock).toHaveBeenCalledTimes(1);
-            expect(getOpacityFromConfigMock).toHaveBeenCalledTimes(1);
-        });
-
-        it('should return true for mid-range opacity values when toggle is enabled', () => {
-            const opacityValues = [25, 50, 75, 99];
-
-            opacityValues.forEach(opacity => {
-                vi.clearAllMocks();
-                toggleFromConfigMock.mockReturnValue(true);
-                getOpacityFromConfigMock.mockReturnValue(opacity);
-
-                const result = checkDecorationConditions();
-
-                expect(result).toBe(true);
-            });
         });
 
         it('should create empty decoration when toggle is disabled', () => {
             toggleFromConfigMock.mockReturnValue(false);
-            getOpacityFromConfigMock.mockReturnValue(50);
 
             checkDecorationConditions();
 
             expect(createTextEditorDecorationTypeMock).toHaveBeenCalledWith({});
             expect(logDecoration).toBe(mockDecoration);
-        });
-
-        it('should create empty decoration when opacity is 100', () => {
-            toggleFromConfigMock.mockReturnValue(true);
-            getOpacityFromConfigMock.mockReturnValue(100);
-
-            checkDecorationConditions();
-
-            expect(createTextEditorDecorationTypeMock).toHaveBeenCalledWith({});
-            expect(logDecoration).toBe(mockDecoration);
-        });
-
-        it('should prioritize toggle check over opacity check', () => {
-            toggleFromConfigMock.mockReturnValue(false);
-            getOpacityFromConfigMock.mockReturnValue(100);
-
-            const result = checkDecorationConditions();
-
-            expect(result).toBe(false);
-            expect(toggleFromConfigMock).toHaveBeenCalledTimes(1);
-            // When toggle is false, opacity should not be checked
-            expect(getOpacityFromConfigMock).not.toHaveBeenCalled();
         });
 
         it('should not create empty decoration when conditions are met', () => {
             toggleFromConfigMock.mockReturnValue(true);
-            getOpacityFromConfigMock.mockReturnValue(50);
 
             checkDecorationConditions();
 
             expect(createTextEditorDecorationTypeMock).not.toHaveBeenCalled();
-        });
-
-        it('should handle multiple consecutive calls correctly', () => {
-            // First call: toggle disabled
-            toggleFromConfigMock.mockReturnValue(false);
-            let result = checkDecorationConditions();
-            expect(result).toBe(false);
-
-            vi.clearAllMocks();
-
-            // Second call: opacity 100
-            toggleFromConfigMock.mockReturnValue(true);
-            getOpacityFromConfigMock.mockReturnValue(100);
-            result = checkDecorationConditions();
-            expect(result).toBe(false);
-
-            vi.clearAllMocks();
-
-            // Third call: conditions met
-            toggleFromConfigMock.mockReturnValue(true);
-            getOpacityFromConfigMock.mockReturnValue(50);
-            result = checkDecorationConditions();
-            expect(result).toBe(true);
-
-            expect(createTextEditorDecorationTypeMock).toHaveBeenCalledTimes(0);
         });
 
         it('should update logDecoration variable when creating empty decoration', () => {
@@ -450,7 +387,10 @@ describe('Decoration Manager Tests', () => {
             recreateDecoration();
 
             expect(createTextEditorDecorationTypeMock).toHaveBeenCalledTimes(3);
-            expect(createTextEditorDecorationTypeMock).toHaveBeenNthCalledWith(2, {});
+            expect(createTextEditorDecorationTypeMock).toHaveBeenNthCalledWith(2, {
+                'color': '#FFFFFF80',
+                'fontStyle': 'italic',
+            });
             expect(createTextEditorDecorationTypeMock).toHaveBeenNthCalledWith(3, {
                 color: '#80808080',
                 fontStyle: 'italic',

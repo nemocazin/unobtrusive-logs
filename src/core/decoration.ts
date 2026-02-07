@@ -35,13 +35,21 @@ export function disposeDecoration(): void {
 export function createDecoration(): void {
     const opacity: number = getOpacityFromConfig();
     const color: string = getColorFromConfig();
-    const alphaHex = convertOpacityToHex(opacity);
 
-    // Create a new decoration type with the specified color and opacity
-    logDecoration = vscode.window.createTextEditorDecorationType({
-        color: `${color}${alphaHex}`,
-        fontStyle: 'italic',
-    });
+    // If default color is specified, only opacity is used.
+    if (color === 'default') {
+        logDecoration = vscode.window.createTextEditorDecorationType({
+            opacity: (opacity / 100).toString(),
+            fontStyle: 'italic',
+        });
+    } else {
+        // Otherwise, apply the color with opacity.
+        const alphaHex = convertOpacityToHex(opacity);
+        logDecoration = vscode.window.createTextEditorDecorationType({
+            color: `${color}${alphaHex}`,
+            fontStyle: 'italic',
+        });
+    }
 }
 
 /**
@@ -51,12 +59,6 @@ export function createDecoration(): void {
  */
 export function checkDecorationConditions(): boolean {
     if (getToggleFromConfig() === false) {
-        logDecoration = vscode.window.createTextEditorDecorationType({});
-        return false;
-    }
-
-    // Opacity 100% means no change, so use default styling
-    if (getOpacityFromConfig() === 100) {
         logDecoration = vscode.window.createTextEditorDecorationType({});
         return false;
     }
