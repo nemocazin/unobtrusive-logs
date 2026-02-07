@@ -50,7 +50,7 @@ describe('changeColorCommand', () => {
         it('should save new color when user selects a color', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟥 Red',
-                description: '',
+
                 hexCode: '#FF0000',
             });
 
@@ -62,7 +62,7 @@ describe('changeColorCommand', () => {
         it('should recreate decoration after saving new color', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟩 Green',
-                description: '',
+
                 hexCode: '#00FF00',
             });
 
@@ -74,7 +74,7 @@ describe('changeColorCommand', () => {
         it('should show confirmation message with selected color name', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟨 Yellow',
-                description: '',
+
                 hexCode: '#FFFF00',
             });
 
@@ -102,23 +102,34 @@ describe('changeColorCommand', () => {
             expect(showInformationMessageMock).not.toHaveBeenCalled();
         });
 
-        it('should handle default color selection', async () => {
+        it('should handle Defaut color selection', async () => {
             showQuickPickMock.mockResolvedValue({
-                label: '⬛ Default',
-                description: '',
+                label: '⬛ Grey',
+
+                hexCode: 'default',
+            });
+
+            await handleChangeColorCommand();
+
+            expect(saveColorToConfigMock).toHaveBeenCalledWith('default');
+            expect(showInformationMessageMock).toHaveBeenCalledWith('Log color set to 🎨 Default');
+        });
+
+        it('should handle grey color selection', async () => {
+            showQuickPickMock.mockResolvedValue({
+                label: '⬛ Grey',
                 hexCode: '#808080',
             });
 
             await handleChangeColorCommand();
 
             expect(saveColorToConfigMock).toHaveBeenCalledWith('#808080');
-            expect(showInformationMessageMock).toHaveBeenCalledWith('Log color set to ⬛ Default');
+            expect(showInformationMessageMock).toHaveBeenCalledWith('Log color set to ⬛ Grey');
         });
 
         it('should handle purple color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟪 Purple',
-                description: '',
                 hexCode: '#9B59B6',
             });
 
@@ -131,7 +142,6 @@ describe('changeColorCommand', () => {
         it('should handle orange color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟧 Orange',
-                description: '',
                 hexCode: '#FFA500',
             });
 
@@ -144,7 +154,6 @@ describe('changeColorCommand', () => {
         it('should handle brown color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟫 Brown',
-                description: '',
                 hexCode: '#8B4513',
             });
 
@@ -157,7 +166,6 @@ describe('changeColorCommand', () => {
         it('should handle cyan color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟦 Cyan',
-                description: '',
                 hexCode: '#00FFFF',
             });
 
@@ -170,7 +178,6 @@ describe('changeColorCommand', () => {
         it('should handle pink color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟪 Pink',
-                description: '',
                 hexCode: '#FF69B4',
             });
 
@@ -183,7 +190,6 @@ describe('changeColorCommand', () => {
         it('should handle crimson color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟥 Crimson',
-                description: '',
                 hexCode: '#DC143C',
             });
 
@@ -196,7 +202,6 @@ describe('changeColorCommand', () => {
         it('should handle lime color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟩 Lime',
-                description: '',
                 hexCode: '#32CD32',
             });
 
@@ -209,7 +214,6 @@ describe('changeColorCommand', () => {
         it('should handle navy color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟦 Navy',
-                description: '',
                 hexCode: '#000080',
             });
 
@@ -222,7 +226,6 @@ describe('changeColorCommand', () => {
         it('should handle gold color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟨 Gold',
-                description: '',
                 hexCode: '#FFD700',
             });
 
@@ -235,7 +238,6 @@ describe('changeColorCommand', () => {
         it('should handle magenta color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟪 Magenta',
-                description: '',
                 hexCode: '#FF00FF',
             });
 
@@ -248,7 +250,6 @@ describe('changeColorCommand', () => {
         it('should handle coral color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟧 Coral',
-                description: '',
                 hexCode: '#FF7F50',
             });
 
@@ -261,7 +262,6 @@ describe('changeColorCommand', () => {
         it('should handle chocolate color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟫 Chocolate',
-                description: '',
                 hexCode: '#D2691E',
             });
 
@@ -274,7 +274,6 @@ describe('changeColorCommand', () => {
         it('should handle silver color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '⬛ Silver',
-                description: '',
                 hexCode: '#C0C0C0',
             });
 
@@ -287,7 +286,6 @@ describe('changeColorCommand', () => {
         it('should handle teal color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟦 Teal',
-                description: '',
                 hexCode: '#008080',
             });
 
@@ -300,7 +298,6 @@ describe('changeColorCommand', () => {
         it('should handle lavender color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟪 Lavender',
-                description: '',
                 hexCode: '#E6E6FA',
             });
 
@@ -313,7 +310,6 @@ describe('changeColorCommand', () => {
         it('should handle maroon color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟥 Maroon',
-                description: '',
                 hexCode: '#800000',
             });
 
@@ -326,7 +322,6 @@ describe('changeColorCommand', () => {
         it('should handle olive color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟩 Olive',
-                description: '',
                 hexCode: '#808000',
             });
 
@@ -339,7 +334,6 @@ describe('changeColorCommand', () => {
         it('should handle indigo color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟦 Indigo',
-                description: '',
                 hexCode: '#4B0082',
             });
 
@@ -352,7 +346,6 @@ describe('changeColorCommand', () => {
         it('should handle khaki color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟨 Khaki',
-                description: '',
                 hexCode: '#F0E68C',
             });
 
@@ -365,7 +358,6 @@ describe('changeColorCommand', () => {
         it('should handle plum color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟪 Plum',
-                description: '',
                 hexCode: '#DDA0DD',
             });
 
@@ -378,7 +370,6 @@ describe('changeColorCommand', () => {
         it('should handle peach color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟧 Peach',
-                description: '',
                 hexCode: '#FFDAB9',
             });
 
@@ -391,7 +382,6 @@ describe('changeColorCommand', () => {
         it('should handle tan color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟫 Tan',
-                description: '',
                 hexCode: '#D2B48C',
             });
 
@@ -404,7 +394,6 @@ describe('changeColorCommand', () => {
         it('should handle charcoal color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '⬛ Charcoal',
-                description: '',
                 hexCode: '#36454F',
             });
 
@@ -417,7 +406,6 @@ describe('changeColorCommand', () => {
         it('should handle turquoise color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟦 Turquoise',
-                description: '',
                 hexCode: '#40E0D0',
             });
 
@@ -430,7 +418,6 @@ describe('changeColorCommand', () => {
         it('should handle orchid color selection', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟪 Orchid',
-                description: '',
                 hexCode: '#DA70D6',
             });
 
@@ -445,7 +432,6 @@ describe('changeColorCommand', () => {
 
             showQuickPickMock.mockResolvedValue({
                 label: '🟥 Red',
-                description: '',
                 hexCode: '#FF0000',
             });
             saveColorToConfigMock.mockImplementation(() => {
@@ -472,8 +458,8 @@ describe('changeColorCommand', () => {
 
             expect(showQuickPickMock).toHaveBeenCalledWith(
                 expect.arrayContaining([
-                    expect.objectContaining({ label: '⬛ Default', hexCode: '#808080' }),
-                    expect.objectContaining({ label: '🟥 Red', hexCode: '#FF0000' }),
+                    expect.objectContaining({ label: '🎨 Default', hexCode: 'default' }),
+                    expect.objectContaining({ label: '⬛ Grey', hexCode: '#808080' }),
                 ]),
                 {
                     placeHolder: 'Select a color for logs',
@@ -482,7 +468,7 @@ describe('changeColorCommand', () => {
             );
         });
 
-        it('should include all 30 color options', async () => {
+        it('should include all 31 color options', async () => {
             showQuickPickMock.mockResolvedValue(undefined);
 
             await handleChangeColorCommand();
@@ -491,7 +477,7 @@ describe('changeColorCommand', () => {
             expect(calls.length).toBeGreaterThan(0);
             const colorOptions = calls[0]?.[0] as unknown[];
 
-            expect(colorOptions).toHaveLength(30);
+            expect(colorOptions).toHaveLength(31);
         });
 
         it('should have matchOnDescription set to true', async () => {
@@ -511,7 +497,7 @@ describe('changeColorCommand', () => {
         it('should show message with color name for known colors', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: '🟥 Red',
-                description: '',
+
                 hexCode: '#FF0000',
             });
 
@@ -523,7 +509,7 @@ describe('changeColorCommand', () => {
         it('should show message with hex code for unknown colors', async () => {
             showQuickPickMock.mockResolvedValue({
                 label: 'Custom Color',
-                description: '',
+
                 hexCode: '#123456',
             });
 
