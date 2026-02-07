@@ -2,17 +2,23 @@ import { describe, it, expect } from 'vitest';
 import { LOG_PATTERNS } from '../../patterns';
 
 describe('LOG_PATTERNS', () => {
+    /**
+     * @brief Test a specific pattern against a given text.
+     *
+     * @param index The index of the pattern
+     * @param text The text to test against the pattern
+     */
+    function testPattern(index: number, text: string) {
+        const pattern = LOG_PATTERNS.cpp[index];
+        expect(pattern).toBeDefined();
+
+        if (pattern) {
+            const matches = text.match(pattern);
+            expect(matches).not.toBeNull();
+        }
+    }
+
     describe('c++ patterns', () => {
-        const testPattern = (index: number, text: string) => {
-            const pattern = LOG_PATTERNS.cpp[index];
-            expect(pattern).toBeDefined();
-
-            if (pattern) {
-                const matches = text.match(pattern);
-                expect(matches).not.toBeNull();
-            }
-        };
-
         it('should match std::cout statements', () => {
             testPattern(0, 'std::cout << "test";');
         });
